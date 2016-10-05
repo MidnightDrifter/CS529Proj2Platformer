@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameState_Platformer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameStateMgr.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Math2D.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix2D.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector2D.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BinaryMap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameState_Platformer.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2D.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix2D.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Math2D.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GameStateMgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GameStateList.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryMap.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{d9ee5ee2-a8ac-4035-a2ed-5b76dee6952d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{21819360-d762-48bc-9ce3-bee62862e207}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Project 2 - Part 2 - Platformer.pdf" />
+  </ItemGroup>
+</Project>

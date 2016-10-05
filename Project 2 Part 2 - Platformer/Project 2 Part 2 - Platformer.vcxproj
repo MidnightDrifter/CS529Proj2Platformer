@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BinaryMap.c" />
     <ClCompile Include="GameStateMgr.c" />
     <ClCompile Include="GameState_Platformer.c" />
     <ClCompile Include="Main.c" />
@@ -19,12 +20,16 @@
     <ClCompile Include="Vector2D.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BinaryMap.h" />
     <ClInclude Include="GameStateList.h" />
     <ClInclude Include="GameStateMgr.h" />
     <ClInclude Include="GameState_Platformer.h" />
     <ClInclude Include="Math2D.h" />
     <ClInclude Include="Matrix2D.h" />
     <ClInclude Include="Vector2D.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Project 2 - Part 2 - Platformer.pdf" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{99C44468-B6FA-417A-818E-F61E863B4D40}</ProjectGuid>
