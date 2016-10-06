@@ -16,6 +16,10 @@
 
 #include "AEEngine.h"
 #include "GameStateMgr.h"
+#include "Math2D.h"
+#include "Matrix2D.h"
+#include "BinaryMap.h"
+#include "Vector2D.h"
 
 // ---------------------------------------------------------------------------
 
@@ -30,6 +34,8 @@
 #define MOVE_VELOCITY_ENEMY 7.5f
 #define ENEMY_IDLE_TIME 2.0
 #define HERO_LIVES 3
+#define SCREEN_X_SCALE 10
+#define SCREEN_Y_SCALE 10
 static int HeroLives;
 static int Hero_Initial_X;
 static int Hero_Initial_Y;
@@ -90,12 +96,12 @@ typedef struct
 
 typedef struct
 {
-	AEVec2					mPosition;		// Current position
+	Vector2D					mPosition;		// Current position
 	float					mAngle;			// Current angle
 	float					mScaleX;		// Current X scaling value
 	float					mScaleY;		// Current Y scaling value
 
-	AEMtx33					mTransform;		// Object transformation matrix: Each frame, calculate the object instance's transformation matrix and save it here
+	Matrix2D					mTransform;		// Object transformation matrix: Each frame, calculate the object instance's transformation matrix and save it here
 
 	GameObjectInstance *	mpOwner;		// This component's owner
 }Component_Transform;
@@ -104,7 +110,7 @@ typedef struct
 
 typedef struct
 {
-	AEVec2					mVelocity;		// Current velocity
+	Vector2D					mVelocity;		// Current velocity
 
 	GameObjectInstance *	mpOwner;		// This component's owner
 }Component_Physics;
@@ -181,7 +187,7 @@ int ImportMapDataFromFile(char *FileName);
 void FreeMapData(void);
 
 
-static AEMtx33 sgMapTransform;
+static Matrix2D sgMapTransform;
 
 
 //Collision flags
@@ -198,9 +204,9 @@ static void							GameObjectInstanceDestroy(GameObjectInstance* pInst);
 // ---------------------------------------------------------------------------
 
 // Functions to add/remove components
-static void AddComponent_Transform(GameObjectInstance *pInst, AEVec2 *pPosition, float Angle, float ScaleX, float ScaleY);
+static void AddComponent_Transform(GameObjectInstance *pInst, Vector2D *pPosition, float Angle, float ScaleX, float ScaleY);
 static void AddComponent_Sprite(GameObjectInstance *pInst, unsigned int ShapeType);
-static void AddComponent_Physics(GameObjectInstance *pInst, AEVec2 *pVelocity);
+static void AddComponent_Physics(GameObjectInstance *pInst, Vector2D *pVelocity);
 static void AddComponent_AI(GameObjectInstance *pInst, double Counter, enum STATE State, enum INNER_STATE InnerState);
 static void AddComponent_MapCollision(GameObjectInstance *pInst);
 
@@ -366,6 +372,15 @@ void GameStatePlatformLoad(void)
 	// -- Store the just computed map transformation in "sgMapTransform"
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////
+	Matrix2D* t, *s;
+
+	Matrix2DIdentity(t);
+	Matrix2DIdentity(s);
+
+	Matrix2DTrans(t, BINARY_MAP_WIDTH / 2.f, BINARY_MAP_HEIGHT / 2.f);
+	Matrix2DScale(s, SCREEN_X_SCALE, SCREEN_Y_SCALE);
+
+	Matrix2DConcat(&sgMapTransform, t, s);
 }
 
 void GameStatePlatformInit(void)
@@ -400,7 +415,7 @@ void GameStatePlatformInit(void)
 	/***********
 	Loop through all the array elements of MapData (which was initialized in the "GameStatePlatformLoad" function
 	from the .txt file
-		
+
 		 - Create a white or black cell
 
 		 - if the element represents the hero
@@ -411,21 +426,63 @@ void GameStatePlatformInit(void)
 		 - if the element represents an enemy
 			Create an enemy instance
 			Set its position depending on its array indices in MapData
-			
+
 		 - if the element represents a coin
 			Create a coin instance
 			Set its position depending on its array indices in MapData
 
 
+			//Coin = yellow/gold
+			//Enemy = red
+			//Ground = white
+			//Player = blue
+			//Empty = black
 
-			
+
+
 	***********/
-	for(i = 0; i < BINARY_MAP_WIDTH; ++i)
-		for(j = 0; j < BINARY_MAP_HEIGHT; ++j)
-		{
-		}
-}
+	GameObjectInstance* pCurr;
 
+	for (i = 0; i < BINARY_MAP_WIDTH; ++i)
+	{
+		for (j = 0; j < BINARY_MAP_HEIGHT; ++j)
+		{
+			if (BinaryCollisionArray[i][j] == 1)
+			{
+				pCurr = GameObjectInstanceCreate(OBJECT_TYPE_MAP_CELL_COLLISION);
+
+			}
+
+			else
+			{
+				pCurr = GameObjectInstanceCreate(OBJECT_TYPE_MAP_CELL_EMPTY);
+
+
+				if (MapData[i][j] == OBJECT_TYPE_HERO)
+				{
+					pCurr = GameObjectInstanceCreate(OBJECT_TYPE_HERO);
+					Hero_Initial_X = i;
+					Hero_Initial_Y = j;
+				}
+
+				else if (MapData[i][j] == OBJECT_TYPE_ENEMY1)
+				{
+					pCurr = GameObjectInstanceCreate(OBJECT_TYPE_ENEMY1);
+				}
+
+				else if (MapData[i][j] == OBJECT_TYPE_COIN)
+				{
+					pCurr = GameObjectInstanceCreate(OBJECT_TYPE_COIN);
+				}
+			}
+
+			pCurr->mpComponent_Transform->mPosition.x = i;
+			pCurr->mpComponent_Transform->mPosition.y = j;
+		}
+	}
+
+	pCurr = NULL;
+}
 void GameStatePlatformUpdate(void)
 {
 	int i, j;
@@ -486,13 +543,17 @@ void GameStatePlatformUpdate(void)
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	//Update object instances physics and behavior
-	for(i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
+	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
 	{
 		GameObjectInstance* pInst = sgGameObjectInstanceList + i;
 
 		// skip non-active object
 		if (0 == (pInst->mFlag & FLAG_ACTIVE))
 			continue;
+
+
+		pInst->mpComponent_Physics->mVelocity.y += GRAVITY * frameTime;
+
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////////////////////////////
@@ -501,6 +562,12 @@ void GameStatePlatformUpdate(void)
 		// function.
 		/////////////////////////////////////////////////////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////////////////////////////
+
+		if (pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_ENEMY1)
+		{
+			EnemyStateMachine(pInst);
+		}
+	
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////
@@ -517,6 +584,8 @@ void GameStatePlatformUpdate(void)
 		// skip non-active object
 		if (0 == (pInst->mFlag & FLAG_ACTIVE))
 			continue;
+
+		Vector2DScaleAdd(&(pInst->mpComponent_Transform->mPosition), &(pInst->mpComponent_Physics->mVelocity), &(pInst->mpComponent_Transform->mPosition), frameTime);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////
@@ -531,13 +600,30 @@ void GameStatePlatformUpdate(void)
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	//Check for grid collision
-	for(i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
+	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
 	{
 		GameObjectInstance* pInst = sgGameObjectInstanceList + i;
 
 		// skip non-active object instances
 		if (0 == (pInst->mFlag & FLAG_ACTIVE))
 			continue;
+
+		if (pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_MAP_CELL_COLLISION && pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_MAP_CELL_EMPTY)
+		{
+			pInst->mpComponent_MapCollision->mMapCollisionFlag = CheckInstanceBinaryMapCollision(pInst->mpComponent_Transform->mPosition.x, pInst->mpComponent_Transform->mPosition.y, pInst->mpComponent_Transform->mScaleX, pInst->mpComponent_Transform->mScaleY);
+
+			if (pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_LEFT > 0 || pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_RIGHT >0)
+			{
+				pInst->mpComponent_Physics->mVelocity.x = 0;
+				SnapToCell(&(pInst->mpComponent_Transform->mPosition.x));
+			}
+
+			if (pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_TOP > 0 || pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_BOTTOM >0)
+			{
+				pInst->mpComponent_Physics->mVelocity.y = 0;
+				SnapToCell(&(pInst->mpComponent_Transform->mPosition.y));
+			}
+		}
 
 	}
 
@@ -558,25 +644,45 @@ void GameStatePlatformUpdate(void)
 		// skip non-active object instances
 		if (0 == (pInst->mFlag & FLAG_ACTIVE))
 			continue;
+
+		if (pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_ENEMY1)
+		{
+			if (StaticRectToStaticRect(&(sgpHero->mpComponent_Transform->mPosition), sgpHero->mpComponent_Transform->mScaleX, sgpHero->mpComponent_Transform->mScaleY, &(pInst->mpComponent_Transform->mPosition), pInst->mpComponent_Transform->mScaleX, pInst->mpComponent_Transform->mScaleY))
+			{
+			HeroLives--;
+			Vector2DSet(&(sgpHero->mpComponent_Transform->mPosition), Hero_Initial_X, Hero_Initial_Y);
+
+			}
+		}
+		else if (pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_COIN)
+		{
+			if (StaticCircleToStaticRectangle(&(pInst->mpComponent_Transform->mPosition), pInst->mpComponent_Transform->mScaleX, &(sgpHero->mpComponent_Transform->mPosition), pInst->mpComponent_Transform->mScaleX, sgpHero->mpComponent_Transform->mScaleY))
+			{
+				//NumCoins++
+				//Play 'coin collected' particle effect here
+				GameObjectInstanceDestroy(pInst);
+			}
+
+		}
 	}
 
 	
 	//Computing the transformation matrices of the game object instances
 	for(i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
 	{
-		AEMtx33 scale, rot, trans;
+		Matrix2D scale, rot, trans;
 		GameObjectInstance* pInst = sgGameObjectInstanceList + i;
 
 		// skip non-active object
 		if (0 == (pInst->mFlag & FLAG_ACTIVE))
 			continue;
 
-		AEMtx33Scale(&scale, pInst->mpComponent_Transform->mScaleX, pInst->mpComponent_Transform->mScaleY);
-		AEMtx33Rot(&rot, pInst->mpComponent_Transform->mAngle);
-		AEMtx33Trans(&trans, pInst->mpComponent_Transform->mPosition.x, pInst->mpComponent_Transform->mPosition.y);
+		Matrix2DScale(&scale, pInst->mpComponent_Transform->mScaleX, pInst->mpComponent_Transform->mScaleY);
+		Matrix2DRot(&rot, pInst->mpComponent_Transform->mAngle);
+		Matrix2DTrans(&trans, pInst->mpComponent_Transform->mPosition.x, pInst->mpComponent_Transform->mPosition.y);
 
-		AEMtx33Concat(&pInst->mpComponent_Transform->mTransform, &trans, &rot);
-		AEMtx33Concat(&pInst->mpComponent_Transform->mTransform, &pInst->mpComponent_Transform->mTransform, &scale);
+		Matrix2DConcat(&pInst->mpComponent_Transform->mTransform, &trans, &rot);
+		Matrix2DConcat(&pInst->mpComponent_Transform->mTransform, &pInst->mpComponent_Transform->mTransform, &scale);
 	}
 }
 
@@ -584,12 +690,12 @@ void GameStatePlatformDraw(void)
 {
 	//Drawing the tile map (the grid)
 	int i, j;
-	AEMtx33 cellTranslation, cellFinalTransformation;
+	Matrix2D cellTranslation, cellFinalTransformation;
 	double frameTime;
 
 	i = j = 0;
-	AEMtx33Identity(&cellTranslation);
-	AEMtx33Identity(&cellFinalTransformation);
+	Matrix2DIdentity(&cellTranslation);
+	Matrix2DIdentity(&cellFinalTransformation);
 
 	// ======================
 	// Getting the frame time
@@ -620,6 +726,9 @@ void GameStatePlatformDraw(void)
 		
 		AEGfxSetTransform(pInst->mpComponent_Transform->mTransform.m);
 		AEGfxMeshDraw(pInst->mpComponent_Sprite->mpShape->mpMesh, AE_GFX_MDM_TRIANGLES);
+
+		Matrix2DConcat(&sgMapTransform, &sgMapTransform, pInst->mpComponent_Transform);
+
 	}
 }
 
@@ -633,6 +742,12 @@ void GameStatePlatformFree(void)
 	//  -- Reset the number of active game objects instances
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////
+
+	for (int i = 0; i < GAME_OBJ_INST_NUM_MAX; i++)
+	{
+		GameObjectInstanceDestroy(&(sgGameObjectInstanceList[i]));
+	}
+
 }
 
 void GameStatePlatformUnload(void)
@@ -644,6 +759,14 @@ void GameStatePlatformUnload(void)
 	// -- Free the map data
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////
+
+	for (int i = 0; i < sgShapeNum; i++)
+	{
+		AEGfxMeshFree(&(sgShapes[i]));
+		free(MapData);
+		free(BinaryCollisionArray);
+	}
+
 }
 
 
@@ -738,7 +861,7 @@ void GameObjectInstanceDestroy(GameObjectInstance* pInst)
 
 // ---------------------------------------------------------------------------
 
-void AddComponent_Transform(GameObjectInstance *pInst, AEVec2 *pPosition, float Angle, float ScaleX, float ScaleY)
+void AddComponent_Transform(GameObjectInstance *pInst, Vector2D *pPosition, float Angle, float ScaleX, float ScaleY)
 {
 	if (0 != pInst)
 	{
@@ -747,8 +870,8 @@ void AddComponent_Transform(GameObjectInstance *pInst, AEVec2 *pPosition, float 
 			pInst->mpComponent_Transform = (Component_Transform *)calloc(1, sizeof(Component_Transform));
 		}
 
-		AEVec2 zeroVec2;
-		AEVec2Zero(&zeroVec2);
+		Vector2D zeroVec2;
+		Vector2DZero(&zeroVec2);
 
 		pInst->mpComponent_Transform->mScaleX = ScaleX;
 		pInst->mpComponent_Transform->mScaleY = ScaleY;
@@ -776,7 +899,7 @@ void AddComponent_Sprite(GameObjectInstance *pInst, unsigned int ShapeType)
 
 // ---------------------------------------------------------------------------
 
-void AddComponent_Physics(GameObjectInstance *pInst, AEVec2 *pVelocity)
+void AddComponent_Physics(GameObjectInstance *pInst, Vector2D *pVelocity)
 {
 	if (0 != pInst)
 	{
@@ -785,8 +908,8 @@ void AddComponent_Physics(GameObjectInstance *pInst, AEVec2 *pVelocity)
 			pInst->mpComponent_Physics = (Component_Physics *)calloc(1, sizeof(Component_Physics));
 		}
 
-		AEVec2 zeroVec2;
-		AEVec2Zero(&zeroVec2);
+		Vector2D zeroVec2;
+		Vector2DZero(&zeroVec2);
 
 		pInst->mpComponent_Physics->mVelocity = pVelocity ? *pVelocity : zeroVec2;
 		pInst->mpComponent_Physics->mpOwner = pInst;
@@ -905,35 +1028,194 @@ int GetCellValue(int X, int Y)
 
 // ---------------------------------------------------------------------------
 
+int GetCellValue(unsigned int X, unsigned int Y)
+{
+	//return 0;
+
+	if (X < 0 || Y < 0 || X >= BINARY_MAP_HEIGHT || Y >= BINARY_MAP_WIDTH)
+	{
+		return 0;
+	}
+
+	else
+	{
+		return BinaryCollisionArray[X][Y];
+	}
+}
+
 int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float scaleY)
 {
-	//At the end of this function, "Flag" will be used to determine which sides
-	//of the object instance are colliding. 2 hot spots will be placed on each side.
-	return 0;
+	//return 0;
+	float length2 = scaleY / 2.f;
+	float length4 = length2 / 2.f;
+	float width2 = scaleX / 2.f;
+	float width4 = width2 / 2.f;
+
+	int topLeftX = (int)(PosX - width4);
+	int topLeftY = (int)(PosY + length2);
+
+	int topRightX = (int)(PosX + width4);
+	int topRightY = topLeftY;
+
+	int leftTopX = (int)(PosX - width2);
+	int leftTopY = (int)(PosY + length4);
+
+	int leftBotX = leftTopX;
+	int leftBotY = (int)(PosY - length4);
+
+	int botLeftX = topLeftX;
+	int botLeftY = (int)(PosY - length2);
+
+	int botRightX = topRightX;
+	int botRightY = botLeftY;
+
+	int rightTopX = (int)(PosX + width2);
+	int rightTopY = leftTopY;
+
+	int rightBotX = rightTopX;
+	int rightBotY = leftBotY;
+
+	int flag = 0;
+
+	//Assuming that we're only checking the points on each side for its respective collision vs. dividing into quadrants
+	if ((GetCellValue(topLeftX, topLeftY) | GetCellValue(topRightX, topRightY)) > 0)  //Might need to change these to explicitly check for 1 for both
+	{
+		flag |= COLLISION_TOP;
+	}
+
+	if ((GetCellValue(rightTopX, rightTopY) | GetCellValue(rightBotX, rightBotY)) > 0)
+	{
+		flag |= COLLISION_RIGHT;
+	}
+
+	if ((GetCellValue(leftTopX, leftTopY) | GetCellValue(leftBotX, leftBotY)) > 0)
+	{
+		flag |= COLLISION_LEFT;
+	}
+
+	if ((GetCellValue(botLeftX, botLeftY) | GetCellValue(botRightX, botRightY)) > 0)
+	{
+		flag |= COLLISION_BOTTOM;
+	}
+
+	return flag;
+
 }
 
-// ---------------------------------------------------------------------------
-
-void SnapToCell(float *Coordinate)
+void SnapToCell(float *Coordinate)  //Would need to add a scale factor to this to make it work for non-unit-sized objects
 {
+	(*Coordinate) = ((int)(*Coordinate)) + 0.5f;
 
 }
-
-// ---------------------------------------------------------------------------
 
 int ImportMapDataFromFile(char *FileName)
 {
-	return 0;
-}
+	//	return 0;
+	int w = -1;
+	int l = -1;
+	char trash[10];
+	FILE* input;
+	input = fopen(FileName, "r");
+	if (input == NULL)
+	{
+		return 0;
+	}
 
-// ---------------------------------------------------------------------------
+	else
+	{
+		fscanf(input, "%s %i", trash, &w);
+		fscanf(input, "%s %i", trash, &l);
+
+
+
+		if (w > 0 && l > 0)
+		{
+			BINARY_MAP_WIDTH = w;
+			BINARY_MAP_HEIGHT = l;
+
+			MapData = malloc(l * sizeof(int*));
+			BinaryCollisionArray = malloc(l * sizeof(int*));
+
+
+
+			for (int j = BINARY_MAP_HEIGHT - 1; j >= 0; --j)
+			{
+
+
+				for (int i = 0; i < BINARY_MAP_WIDTH; ++i)
+				{
+					if (j == BINARY_MAP_HEIGHT - 1)
+					{
+						BinaryCollisionArray[i] = malloc(w * sizeof(int));
+						MapData[i] = malloc(w * sizeof(int));
+					}
+
+					fscanf(input, "%i", &MapData[i][j]);
+
+					if (MapData[i][j] == 1)
+					{
+						BinaryCollisionArray[i][j] = 1;
+					}
+
+					else
+					{
+						BinaryCollisionArray[i][j] = 0;
+					}
+
+				}
+
+
+			}
+
+
+
+			//for(int i=BINARY_MAP_HEIGHT-1;i>=0;i--)//<BINARY_MAP_HEIGHT;i++)
+			//{
+			//	BinaryCollisionArray[i] = malloc(w * sizeof(int));
+			//	MapData[i] = malloc(w * sizeof(int));
+
+			//	for (int j =0;j<BINARY_MAP_WIDTH;j++)
+			//	{
+			//		
+			//		fscanf(input,"%i", &MapData[j][i]);
+
+			//		if (MapData[j][i] ==1)
+			//		{
+			//			BinaryCollisionArray[j][i] = 1;
+			//		}
+
+			//		else
+			//		{
+			//			BinaryCollisionArray[j][i] = 0;
+			//		}
+			//	}
+			//}
+			fclose(input);
+			input = NULL;
+			return 1;
+		}
+
+		else
+		{
+			return 0;
+		}
+	}
+
+
+}
 
 void FreeMapData(void)
 {
+	for (int i = 0; i<BINARY_MAP_HEIGHT; i++)
+	{
+		free(BinaryCollisionArray[i]);
+		free(MapData[i]);
+	}
 
+	free(BinaryCollisionArray);
+	free(MapData);
 }
 
-// ---------------------------------------------------------------------------
 
 void EnemyStateMachine(GameObjectInstance *pInst)
 {

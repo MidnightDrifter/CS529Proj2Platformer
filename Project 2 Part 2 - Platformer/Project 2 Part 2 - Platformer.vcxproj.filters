@@ -56,5 +56,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Project 2 - Part 2 - Platformer.pdf" />
+    <None Include="Lecture 7b - Enemy State Machine.pdf" />
   </ItemGroup>
 </Project>

@@ -29,6 +29,7 @@
     <ClInclude Include="Vector2D.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Lecture 7b - Enemy State Machine.pdf" />
     <None Include="Project 2 - Part 2 - Platformer.pdf" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
