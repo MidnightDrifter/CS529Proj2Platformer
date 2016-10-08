@@ -557,7 +557,7 @@ void GameStatePlatformUpdate(void)
 	
 	sgpHero->mpComponent_MapCollision->mMapCollisionFlag = CheckInstanceBinaryMapCollision(sgpHero->mpComponent_Transform->mPosition.x, sgpHero->mpComponent_Transform->mPosition.y, sgpHero->mpComponent_Transform->mScaleX, sgpHero->mpComponent_Transform->mScaleY);
 
-	if (AEInputCheckTriggered(VK_SPACE) && sgpHero->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_BOTTOM >0)
+	if (AEInputCheckTriggered(VK_SPACE) && (sgpHero->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_BOTTOM) >0)
 	{
 		sgpHero->mpComponent_Physics->mVelocity.y = JUMP_VELOCITY;
 	}
@@ -666,7 +666,7 @@ void GameStatePlatformUpdate(void)
 				pInst->mpComponent_Transform->mPosition.x= SnapToCell(&(pInst->mpComponent_Transform->mPosition.x));
 			}
 
-			if (pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_TOP > 0 || pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_BOTTOM >0)
+			if (pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_TOP > 0 )
 			{
 				pInst->mpComponent_Physics->mVelocity.y = 0.f;
 				pInst->mpComponent_Transform->mPosition.y=SnapToCell(&(pInst->mpComponent_Transform->mPosition.y));

@@ -1,5 +1,4 @@
 ﻿  GameState_Platformer.c
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(560): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
 c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(580): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
 c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(585): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(606): warning C4244: 'function': conversion from 'double' to 'float', possible loss of data
