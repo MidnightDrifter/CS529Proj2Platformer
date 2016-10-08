@@ -1,35 +1,34 @@
 ﻿  GameState_Platformer.c
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(580): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(585): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(606): warning C4244: 'function': conversion from 'double' to 'float', possible loss of data
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(623): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(630): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(581): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(586): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(607): warning C4244: 'function': conversion from 'double' to 'float', possible loss of data
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(624): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
 c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(631): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(654): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(662): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(669): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(693): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(701): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(725): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(772): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(775): warning C4047: 'function': 'Matrix2D *' differs in levels of indirection from 'float (*)[3][3]'
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(775): warning C4024: 'Matrix2DConcat': different types for formal and actual parameter 1
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(775): warning C4024: 'Matrix2DConcat': different types for formal and actual parameter 3
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(814): warning C4018: '<': signed/unsigned mismatch
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1081): warning C4018: '>=': signed/unsigned mismatch
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1093): warning C4142: 'CheckInstanceBinaryMapCollision': benign redefinition of type
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(632): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(655): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(735): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(743): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(767): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(814): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(817): warning C4047: 'function': 'Matrix2D *' differs in levels of indirection from 'float (*)[3][3]'
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(817): warning C4024: 'Matrix2DConcat': different types for formal and actual parameter 1
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(817): warning C4024: 'Matrix2DConcat': different types for formal and actual parameter 3
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(856): warning C4018: '<': signed/unsigned mismatch
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1123): warning C4018: '>=': signed/unsigned mismatch
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1135): warning C4142: 'CheckInstanceBinaryMapCollision': benign redefinition of type
   c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(184): note: see declaration of 'CheckInstanceBinaryMapCollision'
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1167): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1195): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1209): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(205): note: see declaration of 'fopen'
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1175): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1217): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1176): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1218): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1202): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1244): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1293): warning C4244: 'function': conversion from 'float' to 'unsigned int', possible loss of data
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1293): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1327): warning C4244: 'function': conversion from 'float' to 'unsigned int', possible loss of data
-c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1327): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1335): warning C4244: 'function': conversion from 'float' to 'unsigned int', possible loss of data
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1335): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1369): warning C4244: 'function': conversion from 'float' to 'unsigned int', possible loss of data
+c:\users\owner\source\repos\cs529proj2platformer\project 2 part 2 - platformer\gamestate_platformer.c(1369): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
   Project 2 Part 2 - Platformer.vcxproj -> C:\Users\Owner\Source\Repos\CS529Proj2Platformer\Project 2 Part 2 - Platformer\Debug\Project 2 Part 2 - Platformer.exe
   Project 2 Part 2 - Platformer.vcxproj -> C:\Users\Owner\Source\Repos\CS529Proj2Platformer\Project 2 Part 2 - Platformer\Debug\Project 2 Part 2 - Platformer.pdb (Full PDB)

@@ -481,6 +481,7 @@ void GameStatePlatformInit(void)
 					Hero_Initial_Y = y;
 					pCurr->mpComponent_Transform->mPosition.x = x + 0.5f;
 					pCurr->mpComponent_Transform->mPosition.y = y + 0.5f;
+					pCurr->mpComponent_MapCollision->mMapCollisionFlag = 0;
 				}
 
 				else if (MapData[x][y] == OBJECT_TYPE_ENEMY1)
@@ -488,6 +489,7 @@ void GameStatePlatformInit(void)
 					pCurr = GameObjectInstanceCreate(OBJECT_TYPE_ENEMY1);
 					pCurr->mpComponent_Transform->mPosition.x = x + 0.5f;
 					pCurr->mpComponent_Transform->mPosition.y = y + 0.5f;
+					pCurr->mpComponent_MapCollision->mMapCollisionFlag = 0;
 				}
 
 				else if (MapData[x][y] == OBJECT_TYPE_COIN)
@@ -495,7 +497,7 @@ void GameStatePlatformInit(void)
 					pCurr = GameObjectInstanceCreate(OBJECT_TYPE_COIN);
 					pCurr->mpComponent_Transform->mPosition.x = x + 0.5f;
 					pCurr->mpComponent_Transform->mPosition.y = y + 0.5f;
-
+					pCurr->mpComponent_MapCollision->mMapCollisionFlag = 0;
 				}
 
 			}
@@ -545,8 +547,7 @@ void GameStatePlatformUpdate(void)
 	{
 		sgpHero->mpComponent_Physics->mVelocity.x = -1* MOVE_VELOCITY_HERO;
 	}
-	else
-	if (AEInputCheckCurr(VK_RIGHT))
+	else if (AEInputCheckCurr(VK_RIGHT))
 	{
 		sgpHero->mpComponent_Physics->mVelocity.x = MOVE_VELOCITY_HERO;
 	}
@@ -557,12 +558,12 @@ void GameStatePlatformUpdate(void)
 	
 	sgpHero->mpComponent_MapCollision->mMapCollisionFlag = CheckInstanceBinaryMapCollision(sgpHero->mpComponent_Transform->mPosition.x, sgpHero->mpComponent_Transform->mPosition.y, sgpHero->mpComponent_Transform->mScaleX, sgpHero->mpComponent_Transform->mScaleY);
 
-	if (AEInputCheckTriggered(VK_SPACE) && (sgpHero->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_BOTTOM) >0)
+	if (AEInputCheckTriggered(VK_SPACE) && (sgpHero->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_BOTTOM) ==COLLISION_BOTTOM)
 	{
 		sgpHero->mpComponent_Physics->mVelocity.y = JUMP_VELOCITY;
 	}
 
-
+	sgpHero->mpComponent_MapCollision->mMapCollisionFlag = 0;
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////
@@ -654,23 +655,64 @@ void GameStatePlatformUpdate(void)
 		if (pInst==NULL ||( 0 ==  pInst->mFlag & FLAG_ACTIVE)  || pInst->mpComponent_MapCollision == NULL)
 			continue;
 
-		if (pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_MAP_CELL_COLLISION && pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_MAP_CELL_EMPTY)
+		if (pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_MAP_CELL_COLLISION && pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_MAP_CELL_EMPTY  && pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_COIN)
 		{
-			//pInst->mpComponent_MapCollision->mMapCollisionFlag = 0;
+			pInst->mpComponent_MapCollision->mMapCollisionFlag = 0;
 			pInst->mpComponent_MapCollision->mMapCollisionFlag = CheckInstanceBinaryMapCollision(pInst->mpComponent_Transform->mPosition.x, pInst->mpComponent_Transform->mPosition.y, pInst->mpComponent_Transform->mScaleX, pInst->mpComponent_Transform->mScaleY);
 
-			if (pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_LEFT > 0 || pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_RIGHT >0)
+	/*		if (pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_HERO)
 			{
-				pInst->mpComponent_Physics->mVelocity.x = 0.f;
+				int x;
+				x = 2;
+			}*/
+
+			if ((pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT)// || if(pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_RIGHT >0)
+			{
+				if (pInst->mpComponent_Physics->mVelocity.x < 0)
+				{
+					pInst->mpComponent_Physics->mVelocity.x = 0.f;
+				}
 				//pInst->mpComponent_Transform->mPosition.x =
+				//pInst->mpComponent_Transform->mPosition.x += 0.5f;
 				pInst->mpComponent_Transform->mPosition.x= SnapToCell(&(pInst->mpComponent_Transform->mPosition.x));
+				
 			}
 
-			if (pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_TOP > 0 )
+			if ((pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT)
 			{
-				pInst->mpComponent_Physics->mVelocity.y = 0.f;
+
+				if (pInst->mpComponent_Physics->mVelocity.x > 0)
+				{
+					pInst->mpComponent_Physics->mVelocity.x = 0.f;
+				}
+				//pInst->mpComponent_Physics->mVelocity.x = 0.f;
+				//pInst->mpComponent_Transform->mPosition.x =
+				//pInst->mpComponent_Transform->mPosition.x -= 0.5f;
+				pInst->mpComponent_Transform->mPosition.x = SnapToCell(&(pInst->mpComponent_Transform->mPosition.x));
+				
+			}
+
+			if ((pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_TOP) == COLLISION_TOP)// || )
+			{
+				if (pInst->mpComponent_Physics->mVelocity.y>0)// < 0)
+				{
+					pInst->mpComponent_Physics->mVelocity.y = 0.f;
+				}
+				//pInst->mpComponent_Physics->mVelocity.y = 0.f;
 				pInst->mpComponent_Transform->mPosition.y=SnapToCell(&(pInst->mpComponent_Transform->mPosition.y));
 			}
+
+			if((pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM)
+			{
+				if (pInst->mpComponent_Physics->mVelocity.y < 0)
+				{
+					pInst->mpComponent_Physics->mVelocity.y = 0.f;
+				}
+				//pInst->mpComponent_Physics->mVelocity.y = 0.f;
+				pInst->mpComponent_Transform->mPosition.y = SnapToCell(&(pInst->mpComponent_Transform->mPosition.y));
+			}
+
+			pInst->mpComponent_MapCollision->mMapCollisionFlag = 0;
 		}
 
 	}
@@ -1152,7 +1194,7 @@ float SnapToCell(float *Coordinate)  //Would need to add a scale factor to this 
 {
 	float fl = (int)(*Coordinate) + 0.5f;
 	//int c = (int)(*Coordinate);
-	(*Coordinate) = fl;
+	//(*Coordinate) = fl;
 	return fl;
 
 }
