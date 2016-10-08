@@ -222,7 +222,7 @@ static void RemoveComponent_MapCollision(GameObjectInstance *pInst);
 static GameObjectInstance *sgpHero;
 
 //State machine functions
-void EnemyStateMachine(GameObjectInstance *pInst);
+void EnemyStateMachine(GameObjectInstance *pInst, float frametime);
 
 
 void GameStatePlatformLoad(void)
@@ -372,7 +372,8 @@ void GameStatePlatformLoad(void)
 	// -- Store the just computed map transformation in "sgMapTransform"
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////
-	Matrix2D* t, *s;
+	Matrix2D* t = malloc(sizeof(Matrix2D)); 
+	Matrix2D* s = malloc(sizeof(Matrix2D));
 
 	Matrix2DIdentity(t);
 	Matrix2DIdentity(s);
@@ -520,18 +521,24 @@ void GameStatePlatformUpdate(void)
 
 	if (AEInputCheckCurr(VK_LEFT))
 	{
+		sgpHero->mpComponent_Physics->mVelocity.x = -1* MOVE_VELOCITY_HERO;
 	}
 	else
 	if (AEInputCheckCurr(VK_RIGHT))
 	{
+		sgpHero->mpComponent_Physics->mVelocity.x = MOVE_VELOCITY_HERO;
 	}
 	else
 	{
+		sgpHero->mpComponent_Physics->mVelocity.x = 0.f;
 	}
 	
-	//if (AEInputCheckTriggered(VK_SPACE) && /*Hero is on a platform*/)
-	//{
-	//}
+	sgpHero->mpComponent_MapCollision->mMapCollisionFlag = CheckInstanceBinaryMapCollision(sgpHero->mpComponent_Transform->mPosition.x, sgpHero->mpComponent_Transform->mPosition.y, sgpHero->mpComponent_Transform->mScaleX, sgpHero->mpComponent_Transform->mScaleY);
+
+	if (AEInputCheckTriggered(VK_SPACE) && sgpHero->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_BOTTOM >0)
+	{
+		sgpHero->mpComponent_Physics->mVelocity.y = JUMP_VELOCITY;
+	}
 
 
 
@@ -565,7 +572,7 @@ void GameStatePlatformUpdate(void)
 
 		if (pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_ENEMY1)
 		{
-			EnemyStateMachine(pInst);
+			EnemyStateMachine(pInst, frameTime);
 		}
 	
 	}
@@ -576,7 +583,7 @@ void GameStatePlatformUpdate(void)
 	// Update the positions of all active game object instances
 	// -- Positions are updated here (P1 = V1*t + P0)
 	/////////////////////////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////
 	for(i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
 	{
 		GameObjectInstance* pInst = sgGameObjectInstanceList + i;
@@ -1217,7 +1224,7 @@ void FreeMapData(void)
 }
 
 
-void EnemyStateMachine(GameObjectInstance *pInst)
+void EnemyStateMachine(GameObjectInstance *pInst, float frametime)
 {
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1228,6 +1235,83 @@ void EnemyStateMachine(GameObjectInstance *pInst)
 	//    Refer to the provided enemy movement flowchart.
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////
+
+	if (pInst->mpComponent_AI->mState == STATE_GOING_LEFT)
+	{
+		if (pInst->mpComponent_AI->mInnerState == INNER_STATE_ON_ENTER)
+		{
+			pInst->mpComponent_Physics->mVelocity.x = -1 * MOVE_VELOCITY_ENEMY;
+			pInst->mpComponent_AI->mInnerState = INNER_STATE_ON_UPDATE;
+		}
+
+		if (pInst->mpComponent_AI->mInnerState == INNER_STATE_ON_UPDATE)
+		{
+			pInst->mpComponent_MapCollision->mMapCollisionFlag = CheckInstanceBinaryMapCollision(pInst->mpComponent_Transform->mPosition.x, pInst->mpComponent_Transform->mPosition.y, pInst->mpComponent_Transform->mScaleX, pInst->mpComponent_Transform->mScaleY);
+			
+			if (GetCellValue(pInst->mpComponent_Transform->mPosition.x - 1, pInst->mpComponent_Transform->mPosition.y - 1)==1 || pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_LEFT > 0)
+			{
+				pInst->mpComponent_Physics->mVelocity.x = 0.f;
+				pInst->mpComponent_AI->mCounter = 2.f;
+				pInst->mpComponent_AI->mInnerState = INNER_STATE_ON_EXIT;
+			}
+		
+		}
+
+		if (pInst->mpComponent_AI->mInnerState == INNER_STATE_ON_EXIT)
+		{
+			pInst->mpComponent_AI->mCounter += frametime;
+
+			if (pInst->mpComponent_AI->mCounter <= 0)
+			{
+				pInst->mpComponent_AI->mState = STATE_GOING_RIGHT;
+				pInst->mpComponent_AI->mInnerState = INNER_STATE_ON_ENTER;
+			}
+		}
+	}
+
+	else if (pInst->mpComponent_AI->mState == STATE_GOING_RIGHT)
+	{
+
+		if (pInst->mpComponent_AI->mInnerState == INNER_STATE_ON_ENTER)
+		{
+			pInst->mpComponent_Physics->mVelocity.x =  MOVE_VELOCITY_ENEMY;
+			pInst->mpComponent_AI->mInnerState = INNER_STATE_ON_UPDATE;
+		}
+
+		if (pInst->mpComponent_AI->mInnerState == INNER_STATE_ON_UPDATE)
+		{
+			pInst->mpComponent_MapCollision->mMapCollisionFlag = CheckInstanceBinaryMapCollision(pInst->mpComponent_Transform->mPosition.x, pInst->mpComponent_Transform->mPosition.y, pInst->mpComponent_Transform->mScaleX, pInst->mpComponent_Transform->mScaleY);
+
+			if (GetCellValue(pInst->mpComponent_Transform->mPosition.x + 1, pInst->mpComponent_Transform->mPosition.y - 1) ==1 || pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_RIGHT > 0)
+			{
+				pInst->mpComponent_Physics->mVelocity.x = 0.f;
+				pInst->mpComponent_AI->mCounter = 2.f;
+				pInst->mpComponent_AI->mInnerState = INNER_STATE_ON_EXIT;
+			}
+
+		}
+
+		if (pInst->mpComponent_AI->mInnerState == INNER_STATE_ON_EXIT)
+		{
+			pInst->mpComponent_AI->mCounter += frametime;
+
+			if (pInst->mpComponent_AI->mCounter <= 0)
+			{
+				pInst->mpComponent_AI->mState = STATE_GOING_LEFT;
+				pInst->mpComponent_AI->mInnerState = INNER_STATE_ON_ENTER;
+			}
+		}
+	}
+
+
+
+
 }
+
+
+
+
+
+
 
 // ---------------------------------------------------------------------------
