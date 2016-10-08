@@ -19,9 +19,6 @@
     <ClCompile Include="Vector2D.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BinaryMap.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameState_Platformer.h">

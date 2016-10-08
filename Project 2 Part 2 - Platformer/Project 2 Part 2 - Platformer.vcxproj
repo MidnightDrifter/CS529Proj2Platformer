@@ -11,7 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BinaryMap.c" />
     <ClCompile Include="GameStateMgr.c" />
     <ClCompile Include="GameState_Platformer.c" />
     <ClCompile Include="Main.c" />

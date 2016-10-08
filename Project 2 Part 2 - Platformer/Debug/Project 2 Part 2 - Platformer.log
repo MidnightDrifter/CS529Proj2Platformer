@@ -1,10 +1,1 @@
-﻿  Vector2D.c
-  Matrix2D.c
-  Math2D.c
-  Main.c
-  GameState_Platformer.c
-  GameStateMgr.c
-  Generating Code...
-GameStateMgr.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
-  Project 2 Part 2 - Platformer.vcxproj -> C:\Users\Tony\Desktop\Project 2 Part 2 - Platformer\Debug\Project 2 Part 2 - Platformer.exe
-  Project 2 Part 2 - Platformer.vcxproj -> C:\Users\Tony\Desktop\Project 2 Part 2 - Platformer\Debug\Project 2 Part 2 - Platformer.pdb (Full PDB)
+﻿

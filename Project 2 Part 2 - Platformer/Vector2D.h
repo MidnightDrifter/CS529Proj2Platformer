@@ -90,7 +90,7 @@ float Vector2DDotProduct(Vector2D *pVec0, Vector2D *pVec1);
 /*
 This function computes the coordinates of the vector repreented by the angle "angle"
 */
-void Vector2DFromAngle(Vector2D *pResult, float angle);
+void Vector2DFromAngleRad(Vector2D *pResult, float angle);
 
 
 
