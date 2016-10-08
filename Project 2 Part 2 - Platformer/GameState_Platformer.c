@@ -182,7 +182,7 @@ static int BINARY_MAP_WIDTH;
 static int BINARY_MAP_HEIGHT;
 int GetCellValue(unsigned int X, unsigned int Y);
 int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float scaleY);
-void SnapToCell(float *Coordinate);
+float SnapToCell(float *Coordinate);
 int ImportMapDataFromFile(char *FileName);
 void FreeMapData(void);
 
@@ -460,8 +460,8 @@ void GameStatePlatformInit(void)
 				pCurr = GameObjectInstanceCreate(OBJECT_TYPE_MAP_CELL_EMPTY);
 			}
 
-			pCurr->mpComponent_Transform->mPosition.x = i;
-			pCurr->mpComponent_Transform->mPosition.y = j;
+			pCurr->mpComponent_Transform->mPosition.x = i + 0.5f;
+			pCurr->mpComponent_Transform->mPosition.y = j + 0.5f;
 		}
 	}
 	pCurr = NULL;
@@ -479,22 +479,22 @@ void GameStatePlatformInit(void)
 					sgpHero = pCurr;
 					Hero_Initial_X = x;
 					Hero_Initial_Y = y;
-					pCurr->mpComponent_Transform->mPosition.x = x;
-					pCurr->mpComponent_Transform->mPosition.y = y;
+					pCurr->mpComponent_Transform->mPosition.x = x + 0.5f;
+					pCurr->mpComponent_Transform->mPosition.y = y + 0.5f;
 				}
 
 				else if (MapData[x][y] == OBJECT_TYPE_ENEMY1)
 				{
 					pCurr = GameObjectInstanceCreate(OBJECT_TYPE_ENEMY1);
-					pCurr->mpComponent_Transform->mPosition.x = x;
-					pCurr->mpComponent_Transform->mPosition.y = y;
+					pCurr->mpComponent_Transform->mPosition.x = x + 0.5f;
+					pCurr->mpComponent_Transform->mPosition.y = y + 0.5f;
 				}
 
 				else if (MapData[x][y] == OBJECT_TYPE_COIN)
 				{
 					pCurr = GameObjectInstanceCreate(OBJECT_TYPE_COIN);
-					pCurr->mpComponent_Transform->mPosition.x = x;
-					pCurr->mpComponent_Transform->mPosition.y = y;
+					pCurr->mpComponent_Transform->mPosition.x = x + 0.5f;
+					pCurr->mpComponent_Transform->mPosition.y = y + 0.5f;
 
 				}
 
@@ -580,9 +580,18 @@ void GameStatePlatformUpdate(void)
 		if (pInst==NULL ||( 0 ==  pInst->mFlag & FLAG_ACTIVE)  || pInst->mpComponent_Physics == NULL)
 			continue;
 
-
-		pInst->mpComponent_Physics->mVelocity.y += GRAVITY * frameTime;
-
+		if (pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_HERO || pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_ENEMY1)
+		{
+			pInst->mpComponent_Physics->mVelocity.y = pInst->mpComponent_Physics->mVelocity.y + GRAVITY * frameTime;
+		}
+		/*{
+			pInst->mpComponent_MapCollision->mMapCollisionFlag = 0;
+			pInst->mpComponent_MapCollision->mMapCollisionFlag = CheckInstanceBinaryMapCollision(pInst->mpComponent_Transform->mPosition.x, pInst->mpComponent_Transform->mPosition.y, pInst->mpComponent_Transform->mScaleX, pInst->mpComponent_Transform->mScaleY);
+			if (pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_BOTTOM > 0)
+			{
+				pInst->mpComponent_Physics->mVelocity.y = pInst->mpComponent_Physics->mVelocity.y + GRAVITY * frameTime;
+			}
+		}*/
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////////////////////////////
@@ -606,16 +615,24 @@ void GameStatePlatformUpdate(void)
 	// -- Positions are updated here (P1 = V1*t + P0)
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////
-	for(i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
+	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
 	{
 		GameObjectInstance* pInst = sgGameObjectInstanceList + i;
 
 		// skip non-active object
-		if (pInst==NULL ||( 0 ==  pInst->mFlag & FLAG_ACTIVE) || pInst->mpComponent_Physics == NULL)
+		if (pInst == NULL || (0 == pInst->mFlag & FLAG_ACTIVE) || pInst->mpComponent_Physics == NULL)
 			continue;
 
-		Vector2DScaleAdd(&(pInst->mpComponent_Transform->mPosition), &(pInst->mpComponent_Physics->mVelocity), &(pInst->mpComponent_Transform->mPosition), frameTime);
-	}
+		if (pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_HERO || pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_ENEMY1)
+		{
+		//	Vector2DScaleAdd(&(pInst->mpComponent_Transform->mPosition), &(pInst->mpComponent_Physics->mVelocity), &(pInst->mpComponent_Transform->mPosition), frameTime);
+		
+			pInst->mpComponent_Transform->mPosition.x += frameTime* pInst->mpComponent_Physics->mVelocity.x;
+			pInst->mpComponent_Transform->mPosition.y += frameTime* pInst->mpComponent_Physics->mVelocity.y;
+
+		
+		}
+		}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////
@@ -639,18 +656,20 @@ void GameStatePlatformUpdate(void)
 
 		if (pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_MAP_CELL_COLLISION && pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_MAP_CELL_EMPTY)
 		{
+			//pInst->mpComponent_MapCollision->mMapCollisionFlag = 0;
 			pInst->mpComponent_MapCollision->mMapCollisionFlag = CheckInstanceBinaryMapCollision(pInst->mpComponent_Transform->mPosition.x, pInst->mpComponent_Transform->mPosition.y, pInst->mpComponent_Transform->mScaleX, pInst->mpComponent_Transform->mScaleY);
 
 			if (pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_LEFT > 0 || pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_RIGHT >0)
 			{
-				pInst->mpComponent_Physics->mVelocity.x = 0;
-				SnapToCell(&(pInst->mpComponent_Transform->mPosition.x));
+				pInst->mpComponent_Physics->mVelocity.x = 0.f;
+				//pInst->mpComponent_Transform->mPosition.x =
+				pInst->mpComponent_Transform->mPosition.x= SnapToCell(&(pInst->mpComponent_Transform->mPosition.x));
 			}
 
 			if (pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_TOP > 0 || pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_BOTTOM >0)
 			{
-				pInst->mpComponent_Physics->mVelocity.y = 0;
-				SnapToCell(&(pInst->mpComponent_Transform->mPosition.y));
+				pInst->mpComponent_Physics->mVelocity.y = 0.f;
+				pInst->mpComponent_Transform->mPosition.y=SnapToCell(&(pInst->mpComponent_Transform->mPosition.y));
 			}
 		}
 
@@ -1070,7 +1089,7 @@ int GetCellValue(unsigned int X, unsigned int Y)
 	}
 }
 
-int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float scaleY)
+unsigned int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float scaleY)
 {
 	//return 0;
 	float length2 = scaleY / 2.f;
@@ -1129,10 +1148,12 @@ int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float 
 
 }
 
-void SnapToCell(float *Coordinate)  //Would need to add a scale factor to this to make it work for non-unit-sized objects
+float SnapToCell(float *Coordinate)  //Would need to add a scale factor to this to make it work for non-unit-sized objects
 {
-	int c = (int)(*Coordinate);
-	(*Coordinate) = c + 0.5f;
+	float fl = (int)(*Coordinate) + 0.5f;
+	//int c = (int)(*Coordinate);
+	(*Coordinate) = fl;
+	return fl;
 
 }
 
