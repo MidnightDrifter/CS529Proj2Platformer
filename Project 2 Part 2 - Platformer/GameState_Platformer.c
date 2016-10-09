@@ -542,7 +542,7 @@ void GameStatePlatformUpdate(void)
 	// -- You should be able to move the main character and make it jump.
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////
-
+	  
 	if (AEInputCheckCurr(VK_LEFT))
 	{
 		sgpHero->mpComponent_Physics->mVelocity.x = -1* MOVE_VELOCITY_HERO;
@@ -550,15 +550,20 @@ void GameStatePlatformUpdate(void)
 	else if (AEInputCheckCurr(VK_RIGHT))
 	{
 		sgpHero->mpComponent_Physics->mVelocity.x = MOVE_VELOCITY_HERO;
-	}
+	} 
 	else
 	{
 		sgpHero->mpComponent_Physics->mVelocity.x = 0.f;
 	}
-	
-	sgpHero->mpComponent_MapCollision->mMapCollisionFlag = CheckInstanceBinaryMapCollision(sgpHero->mpComponent_Transform->mPosition.x, sgpHero->mpComponent_Transform->mPosition.y, sgpHero->mpComponent_Transform->mScaleX, sgpHero->mpComponent_Transform->mScaleY);
 
-	if (AEInputCheckTriggered(VK_SPACE) && (sgpHero->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_BOTTOM) ==COLLISION_BOTTOM)
+	 int test = CheckInstanceBinaryMapCollision(sgpHero->mpComponent_Transform->mPosition.x, sgpHero->mpComponent_Transform->mPosition.y, 1, 1);
+
+	//sgpHero->mpComponent_MapCollision->mMapCollisionFlag = 0;
+
+	
+	//sgpHero->mpComponent_MapCollision->mMapCollisionFlag = CheckInstanceBinaryMapCollision(sgpHero->mpComponent_Transform->mPosition.x, sgpHero->mpComponent_Transform->mPosition.y, 1, 1);// sgpHero->mpComponent_Transform->mScaleX, sgpHero->mpComponent_Transform->mScaleY);
+
+	if (AEInputCheckTriggered(VK_SPACE) && COLLISION_BOTTOM==(test & COLLISION_BOTTOM) )// (sgpHero->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_BOTTOM) ==COLLISION_BOTTOM)
 	{
 		sgpHero->mpComponent_Physics->mVelocity.y = JUMP_VELOCITY;
 	}
@@ -655,7 +660,7 @@ void GameStatePlatformUpdate(void)
 		if (pInst==NULL ||( 0 ==  pInst->mFlag & FLAG_ACTIVE)  || pInst->mpComponent_MapCollision == NULL)
 			continue;
 
-		if (pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_MAP_CELL_COLLISION && pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_MAP_CELL_EMPTY  && pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_COIN)
+		if(pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_HERO) //(pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_MAP_CELL_COLLISION && pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_MAP_CELL_EMPTY  && pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_COIN)
 		{
 			pInst->mpComponent_MapCollision->mMapCollisionFlag = 0;
 			pInst->mpComponent_MapCollision->mMapCollisionFlag = CheckInstanceBinaryMapCollision(pInst->mpComponent_Transform->mPosition.x, pInst->mpComponent_Transform->mPosition.y, pInst->mpComponent_Transform->mScaleX, pInst->mpComponent_Transform->mScaleY);
@@ -666,25 +671,25 @@ void GameStatePlatformUpdate(void)
 				x = 2;
 			}*/
 
-			if ((pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_LEFT) == COLLISION_LEFT)// || if(pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_RIGHT >0)
+			if ((pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_LEFT))// == COLLISION_LEFT)// || if(pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_RIGHT >0)
 			{
-				if (pInst->mpComponent_Physics->mVelocity.x < 0)
-				{
+			//	if (pInst->mpComponent_Physics->mVelocity.x < 0)
+			//	{
 					pInst->mpComponent_Physics->mVelocity.x = 0.f;
-				}
+				//}
 				//pInst->mpComponent_Transform->mPosition.x =
 				//pInst->mpComponent_Transform->mPosition.x += 0.5f;
 				pInst->mpComponent_Transform->mPosition.x= SnapToCell(&(pInst->mpComponent_Transform->mPosition.x));
 				
 			}
 
-			if ((pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_RIGHT) == COLLISION_RIGHT)
+			if ((pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_RIGHT))// == COLLISION_RIGHT)
 			{
 
-				if (pInst->mpComponent_Physics->mVelocity.x > 0)
-				{
+				//if (pInst->mpComponent_Physics->mVelocity.x > 0)
+				//{
 					pInst->mpComponent_Physics->mVelocity.x = 0.f;
-				}
+				//}
 				//pInst->mpComponent_Physics->mVelocity.x = 0.f;
 				//pInst->mpComponent_Transform->mPosition.x =
 				//pInst->mpComponent_Transform->mPosition.x -= 0.5f;
@@ -692,22 +697,22 @@ void GameStatePlatformUpdate(void)
 				
 			}
 
-			if ((pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_TOP) == COLLISION_TOP)// || )
+			if ((pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_TOP))// == COLLISION_TOP)// || )
 			{
-				if (pInst->mpComponent_Physics->mVelocity.y>0)// < 0)
-				{
+				//if (pInst->mpComponent_Physics->mVelocity.y>0)// < 0)
+				//{
 					pInst->mpComponent_Physics->mVelocity.y = 0.f;
-				}
+				//}
 				//pInst->mpComponent_Physics->mVelocity.y = 0.f;
 				pInst->mpComponent_Transform->mPosition.y=SnapToCell(&(pInst->mpComponent_Transform->mPosition.y));
 			}
 
-			if((pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_BOTTOM) == COLLISION_BOTTOM)
+			if((pInst->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_BOTTOM))// == COLLISION_BOTTOM)
 			{
-				if (pInst->mpComponent_Physics->mVelocity.y < 0)
-				{
+			//	if (pInst->mpComponent_Physics->mVelocity.y < 0)
+			//	{
 					pInst->mpComponent_Physics->mVelocity.y = 0.f;
-				}
+			//	}
 				//pInst->mpComponent_Physics->mVelocity.y = 0.f;
 				pInst->mpComponent_Transform->mPosition.y = SnapToCell(&(pInst->mpComponent_Transform->mPosition.y));
 			}
@@ -1116,7 +1121,7 @@ void RemoveComponent_MapCollision(GameObjectInstance *pInst)
 
 // ---------------------------------------------------------------------------
 
-int GetCellValue(unsigned int X, unsigned int Y)
+int GetCellValue( int X, int Y)
 {
 	//return 0;
 
@@ -1131,7 +1136,7 @@ int GetCellValue(unsigned int X, unsigned int Y)
 	}
 }
 
-unsigned int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float scaleY)
+ int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scaleX, float scaleY)
 {
 	//return 0;
 	float length2 = scaleY / 2.f;
@@ -1139,60 +1144,118 @@ unsigned int CheckInstanceBinaryMapCollision(float PosX, float PosY, float scale
 	float width2 = scaleX / 2.f;
 	float width4 = width2 / 2.f;
 
-	int topLeftX = (int)(PosX - width4);
-	int topLeftY = (int)(PosY + length2);
+	int topLeftX = (PosX - width4);
+	int topLeftY = (PosY + length2);
 
-	int topRightX = (int)(PosX + width4);
-	int topRightY = topLeftY;
+	int topRightX = (PosX + width4);
+	int topRightY = (PosY + length2);
 
-	int leftTopX = (int)(PosX - width2);
-	int leftTopY = (int)(PosY + length4);
+	int leftTopX = (PosX - width2);
+	int leftTopY = (PosY + length4);
 
-	int leftBotX = leftTopX;
-	int leftBotY = (int)(PosY - length4);
+	int leftBotX = (PosX - width2);
+	int leftBotY = (PosY - length4);
 
-	int botLeftX = topLeftX;
-	int botLeftY = (int)(PosY - length2);
+	int botLeftX = (PosX - width4); //15.25
+	int botLeftY = (PosY - length2); //3.0
 
-	int botRightX = topRightX;
-	int botRightY = botLeftY;
+	int botRightX = (PosX + width4);//15.75
+	int botRightY = (PosY - length2);//3.0
 
-	int rightTopX = (int)(PosX + width2);
-	int rightTopY = leftTopY;
+	int rightTopX = (PosX + width2);
+	int rightTopY = (PosY + length4);
 
-	int rightBotX = rightTopX;
-	int rightBotY = leftBotY;
+	int rightBotX = (PosX + width2);
+	int rightBotY = (PosY - length4);
 
 	int flag = 0;
 
 	//Assuming that we're only checking the points on each side for its respective collision vs. dividing into quadrants
-	if ((GetCellValue(topLeftX, topLeftY)==1 || GetCellValue(topRightX, topRightY)) ==1 )  //Might need to change these to explicitly check for 1 for both
+	if ((GetCellValue(topLeftX, topLeftY)==1) || (GetCellValue(topRightX, topRightY)) ==1 )  //Might need to change these to explicitly check for 1 for both
 	{
 		flag |= COLLISION_TOP;
 	}
 
-	if ((GetCellValue(rightTopX, rightTopY)==1 || GetCellValue(rightBotX, rightBotY)) ||1)
+	if ((GetCellValue(rightTopX, rightTopY)==1) || (GetCellValue(rightBotX, rightBotY)) ==1)
 	{
 		flag |= COLLISION_RIGHT;
 	}
 
-	if ((GetCellValue(leftTopX, leftTopY)==1 || GetCellValue(leftBotX, leftBotY)) ==1)
+	if ((GetCellValue(leftTopX, leftTopY)==1) || (GetCellValue(leftBotX, leftBotY)) ==1)
 	{
 		flag |= COLLISION_LEFT;
 	}
 
-	if ((GetCellValue(botLeftX, botLeftY)==1 || GetCellValue(botRightX, botRightY)) ==1)
+	if ((GetCellValue(botLeftX, botLeftY)==1) || (GetCellValue(botRightX, botRightY)) ==1)
 	{
 		flag |= COLLISION_BOTTOM;
 	}
 
 	return flag;
+	
+	/*
+	int FLAG = 0;
+	//return 0;
+
+	//Top right, right side
+	int xTRR = PosX + .5*scaleX;
+	int yTRR = PosY + .25*scaleY;
+
+	//Top right, top side
+	int xTRT = PosX + .25*scaleX;
+	int yTRT = PosY + .5*scaleY;
+
+	//Bottom right, right side
+	int xBRR = PosX + .5*scaleX;
+	int yBRR = PosY - .25*scaleY;
+
+	//Bottom right, bottom side
+	int xBRB = PosX + .25*scaleX;
+	int yBRB = PosY - .5*scaleY;
+
+	//Bottom left, bottom side
+	int xBLB = PosX - .25*scaleX;
+	int yBLB = PosY - .5*scaleY;
+
+	//Bottom left, left side
+	int xBLL = PosX - .5*scaleX;
+	int yBLL = PosY - .25*scaleY;
+
+	//Top left, left side
+	int xTLL = PosX - .5*scaleX;
+	int yTLL = PosY + .25*scaleY;
+
+	//Top left, top side
+	int xTLT = PosX - .25*scaleX;
+	int yTLT = PosY + .5*scaleY;
+
+
+	if (1 == GetCellValue(xTRR, yTRR) || (1 == GetCellValue(xBRR, yBRR)))
+	{
+		FLAG = FLAG | COLLISION_RIGHT;
+	}
+
+	if (1 == GetCellValue(xTRT, yTRT) || (1 == GetCellValue(xTLT, yTLT)))
+	{
+		FLAG = FLAG | COLLISION_TOP;
+	}
+	if (1 == GetCellValue(xBRB, yBRB) || (1 == GetCellValue(xBLB, yBLB)))
+	{
+		FLAG = FLAG | COLLISION_BOTTOM;
+	}
+	if (1 == GetCellValue(xTLL, yTLL) || (1 == GetCellValue(xBLL, yBLL)))
+	{
+		FLAG = FLAG | COLLISION_LEFT;
+	}
+
+	return FLAG;
+	*/
 
 }
 
 float SnapToCell(float *Coordinate)  //Would need to add a scale factor to this to make it work for non-unit-sized objects
 {
-	float fl = (int)(*Coordinate) + 0.5f;
+	float fl = ((int)(*Coordinate)) + 0.5f;
 	//int c = (int)(*Coordinate);
 	//(*Coordinate) = fl;
 	return fl;
