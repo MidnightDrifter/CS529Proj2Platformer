@@ -543,6 +543,8 @@ void GameStatePlatformUpdate(void)
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	  
+
+	//INPUT CHECK HERE
 	if (AEInputCheckCurr(VK_LEFT))
 	{
 		sgpHero->mpComponent_Physics->mVelocity.x = -1* MOVE_VELOCITY_HERO;
@@ -578,6 +580,8 @@ void GameStatePlatformUpdate(void)
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	//Update object instances physics and behavior
+	
+	//PHYSICS - VELOCITY HERE
 	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
 	{
 		GameObjectInstance* pInst = sgGameObjectInstanceList + i;
@@ -621,6 +625,8 @@ void GameStatePlatformUpdate(void)
 	// -- Positions are updated here (P1 = V1*t + P0)
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	//PHYSICS - POSITION HERE
 	for (i = 0; i < GAME_OBJ_INST_NUM_MAX; ++i)
 	{
 		GameObjectInstance* pInst = sgGameObjectInstanceList + i;
@@ -659,8 +665,8 @@ void GameStatePlatformUpdate(void)
 		// skip non-active object instances
 		if (pInst==NULL ||( 0 ==  pInst->mFlag & FLAG_ACTIVE)  || pInst->mpComponent_MapCollision == NULL)
 			continue;
-
-		if(pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_HERO) //(pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_MAP_CELL_COLLISION && pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_MAP_CELL_EMPTY  && pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_COIN)
+		//MAP COLLISION & CLIPPING HERE
+		if(pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_MAP_CELL_COLLISION && pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_MAP_CELL_EMPTY  && pInst->mpComponent_Sprite->mpShape->mType != OBJECT_TYPE_COIN)
 		{
 			pInst->mpComponent_MapCollision->mMapCollisionFlag = 0;
 			pInst->mpComponent_MapCollision->mMapCollisionFlag = CheckInstanceBinaryMapCollision(pInst->mpComponent_Transform->mPosition.x, pInst->mpComponent_Transform->mPosition.y, pInst->mpComponent_Transform->mScaleX, pInst->mpComponent_Transform->mScaleY);
