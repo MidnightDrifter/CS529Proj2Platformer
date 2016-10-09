@@ -83,39 +83,48 @@ Function returns true is the circle and rectangle are intersecting, otherwise it
 
 int StaticCircleToStaticRectangle(Vector2D *pCenter, float Radius, Vector2D *pRect, float Width, float Height)
 {
-	Vector2D p;
-	p.x = pCenter->x;
-	p.y = pCenter->y;
 
-	float right, left, top, bot, hw, hh;
-	hw = Width / 2;
-	hh = Height / 2;
-	right = pRect->x + hw;
-	left = right - Width;
-	top = pRect->y + hh;
-	bot = top = Height;
+	Vector2D closestPoint;
+	Vector2DSet(&closestPoint, 0, 0);
 
-	if (p.x > right)
+	//	SetVector2D(closestPoint, pRect->x, pRect->y);
+
+
+
+	if (pCenter->x > pRect->x + 0.5*Width)
 	{
-		p.x = right;
+		closestPoint.x = pRect->x + 0.5*Width;
 	}
 
-	if (p.x < left)
+	else if (pCenter->x < pRect->x - 0.5*Width)
 	{
-		p.x = left;
+		closestPoint.x = pRect->x - 0.5*Width;
 	}
 
-	if (p.y > top)
+	else
 	{
-		p.y = top;
-
+		closestPoint.x = pCenter->x;
 	}
 
-	if (p.y < bot)
+
+	if (pCenter->y > pRect->y + 0.5*Height)
 	{
-		p.y = bot;
+		closestPoint.y = pRect->y + 0.5*Height;
 	}
 
-	return StaticPointToStaticCircle(&p, pCenter, Radius);
+	else if (pCenter->y < pRect->y - 0.5*Height)
+	{
+		closestPoint.y = pRect->y - 0.5*Height;
+	}
+
+	else
+	{
+		closestPoint.y = pCenter->y;
+	}
+
+
+	int output = StaticPointToStaticCircle(&closestPoint, pCenter, Radius);
+
+	return output;
 	//return 0;
 }
