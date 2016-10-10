@@ -36,6 +36,7 @@
 #define HERO_LIVES 3
 #define SCREEN_X_SCALE 30
 #define SCREEN_Y_SCALE 30
+#define PARTICLE_LIFETIME 1.75
 static int HeroLives;
 static int Hero_Initial_X;
 static int Hero_Initial_Y;
@@ -51,7 +52,9 @@ enum OBJECT_TYPE
 	OBJECT_TYPE_MAP_CELL_COLLISION,		//1
 	OBJECT_TYPE_HERO,					//2
 	OBJECT_TYPE_ENEMY1,					//3
-	OBJECT_TYPE_COIN					//4
+	OBJECT_TYPE_COIN,					//4
+	PARTICLE_TYPE_JUMP_EFFECT,			//5
+	PARTICLE_TYPE_ENEMY_BURN			//6
 };
 
 //State machine states
@@ -353,6 +356,35 @@ void GameStatePlatformLoad(void)
 
 	pShape->mpMesh = AEGfxMeshEnd();
 
+	pShape = sgShapes + sgShapeNum++;
+	pShape->mType = PARTICLE_TYPE_JUMP_EFFECT;
+
+	AEGfxMeshStart();
+
+	/*	AEGfxTriAdd(
+		-0.5f, -0.5f, 0xFF0000FF, 0.0f, 0.0f, 
+		 0.5f,  -0.5f, 0xFF0000FF, 0.0f, 0.0f, 
+		-0.5f,  0.5f, 0xFF0000FF, 0.0f, 0.0f);
+		Raw blue triangle
+		*/
+	AEGfxTriAdd(
+		-0.5f, -0.5f, 0xFFFF00FF, 0.0f, 0.0f,
+		0.5f, -0.5f, 0xFFFF00FF, 0.0f, 0.0f,
+		-0.5f, 0.5f, 0xFFFF00FF, 0.0f, 0.0f);  //Purple triangle
+
+	pShape->mpMesh = AEGfxMeshEnd();
+
+	pShape = sgShapes + sgShapeNum++;
+	pShape->mType = PARTICLE_TYPE_ENEMY_BURN;  //Orange triangle, have them shimmer and float up for a short time when enemy isn't moving, then poof
+	  AEGfxMeshStart();
+	  AEGfxTriAdd(
+		  -0.5f, -0.5f, 0xFFFFA500, 0.0f, 0.0f,
+		  0.5f, -0.5f, 0xFFFFA500, 0.0f, 0.0f,
+		  -0.5f, 0.5f, 0xFFFFA500, 0.0f, 0.0f);
+
+	  pShape->mpMesh = AEGfxMeshEnd();
+
+
 	//Setting intital binary map values
 	MapData = 0;
 	BinaryCollisionArray = 0;
@@ -568,6 +600,20 @@ void GameStatePlatformUpdate(void)
 	if (AEInputCheckTriggered(VK_SPACE) && COLLISION_BOTTOM==(sgpHero->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_BOTTOM) )// (sgpHero->mpComponent_MapCollision->mMapCollisionFlag & COLLISION_BOTTOM) ==COLLISION_BOTTOM)
 	{
 		sgpHero->mpComponent_Physics->mVelocity.y = JUMP_VELOCITY;
+	
+	//Spawn 10-15 particles that shoot out from player in random dir. upon jumping
+		GameObjectInstance* pInst;
+		int numParticles = 10 + rand() % 5;
+		for (int i = 0; i < numParticles; i++)
+		{
+			 pInst = GameObjectInstanceCreate(PARTICLE_TYPE_JUMP_EFFECT);
+			 pInst->mpComponent_Transform->mPosition.x = sgpHero->mpComponent_Transform->mPosition.x;
+			 pInst->mpComponent_Transform->mPosition.y = sgpHero->mpComponent_Transform->mPosition.y;
+			 float angle = (180.f + rand() % 180)* PI / 180.f;  //Convert to radians
+			 pInst->mpComponent_Physics->mVelocity.x = cosf(angle); 
+			 pInst->mpComponent_Physics->mVelocity.y = sinf(angle);
+		}
+	
 	}
 
 	//sgpHero->mpComponent_MapCollision->mMapCollisionFlag = 0;
@@ -590,9 +636,15 @@ void GameStatePlatformUpdate(void)
 		if (pInst==NULL ||( 0 ==  pInst->mFlag & FLAG_ACTIVE)  || pInst->mpComponent_Physics == NULL)
 			continue;
 
-		if (pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_HERO || pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_ENEMY1)
+		if (pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_HERO || pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_ENEMY1 || pInst->mpComponent_Sprite->mpShape->mType == PARTICLE_TYPE_JUMP_EFFECT)
 		{
 			pInst->mpComponent_Physics->mVelocity.y = pInst->mpComponent_Physics->mVelocity.y + GRAVITY * frameTime;
+		}
+
+		else if (pInst->mpComponent_Sprite->mpShape->mType == PARTICLE_TYPE_ENEMY_BURN && pInst->mpComponent_Physics->mVelocity.y <=0)
+		{
+			pInst->mpComponent_Physics->mVelocity.y -= GRAVITY * frameTime / 2.f;
+			pInst->mpComponent_Physics->mVelocity.x += (-1 + rand() % 3) / 30.f;
 		}
 		/*{
 			pInst->mpComponent_MapCollision->mMapCollisionFlag = 0;
@@ -635,7 +687,7 @@ void GameStatePlatformUpdate(void)
 		if (pInst == NULL || (0 == pInst->mFlag & FLAG_ACTIVE) || pInst->mpComponent_Physics == NULL)
 			continue;
 
-		if (pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_HERO || pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_ENEMY1)
+		if (pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_HERO || pInst->mpComponent_Sprite->mpShape->mType == OBJECT_TYPE_ENEMY1 || pInst->mpComponent_Sprite->mpShape->mType == PARTICLE_TYPE_ENEMY_BURN || pInst->mpComponent_Sprite->mpShape->mType == PARTICLE_TYPE_JUMP_EFFECT)
 		{
 		//	Vector2DScaleAdd(&(pInst->mpComponent_Transform->mPosition), &(pInst->mpComponent_Physics->mVelocity), &(pInst->mpComponent_Transform->mPosition), frameTime);
 		
@@ -644,6 +696,16 @@ void GameStatePlatformUpdate(void)
 
 		
 		}
+
+		if (pInst->mpComponent_Sprite->mpShape->mType == PARTICLE_TYPE_ENEMY_BURN || pInst->mpComponent_Sprite->mpShape->mType == PARTICLE_TYPE_JUMP_EFFECT)
+		{
+			pInst->mpComponent_AI->mCounter += frameTime;
+			if (pInst->mpComponent_AI->mCounter > PARTICLE_LIFETIME)
+			{
+				GameObjectInstanceDestroy(pInst);
+			}
+		}
+
 		}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////
@@ -930,6 +992,17 @@ GameObjectInstance* GameObjectInstanceCreate(unsigned int ObjectType)			// From 
 				AddComponent_Physics(pInst, 0);
 				AddComponent_MapCollision(pInst);
 				break;
+			case PARTICLE_TYPE_JUMP_EFFECT:
+				AddComponent_Sprite(pInst, PARTICLE_TYPE_JUMP_EFFECT);
+				AddComponent_Transform(pInst, 0, 0.f, 3.f/SCREEN_X_SCALE, 3.f/SCREEN_Y_SCALE);
+				AddComponent_Physics(pInst, 0);
+				AddComponent_AI(pInst, 0, STATE_NONE, STATE_NONE);
+				break;
+			case PARTICLE_TYPE_ENEMY_BURN:
+				AddComponent_Sprite(pInst, PARTICLE_TYPE_ENEMY_BURN);
+				AddComponent_Transform(pInst, 0, 0.f, 3.f / SCREEN_X_SCALE, 3.f / SCREEN_Y_SCALE);
+				AddComponent_Physics(pInst, 0);
+				AddComponent_AI(pInst, 0, STATE_NONE, STATE_NONE);
 			}
 
 			++sgGameObjectInstanceNum;
@@ -1420,7 +1493,10 @@ void EnemyStateMachine(GameObjectInstance *pInst)//, float frametime)
 		if (pInst->mpComponent_AI->mInnerState == INNER_STATE_ON_EXIT)
 		{
 			pInst->mpComponent_AI->mCounter -= frametime;
-
+			GameObjectInstance* temp;
+			temp=GameObjectInstanceCreate(PARTICLE_TYPE_ENEMY_BURN);
+			temp->mpComponent_Transform->mPosition.x = pInst->mpComponent_Transform->mPosition.x + (-1 + rand() % 3) / 2.f;
+			temp->mpComponent_Transform->mPosition.y = pInst->mpComponent_Transform->mPosition.y + 0.25f;
 			if (pInst->mpComponent_AI->mCounter <= 0)
 			{
 				pInst->mpComponent_AI->mState = STATE_GOING_RIGHT;
@@ -1454,7 +1530,10 @@ void EnemyStateMachine(GameObjectInstance *pInst)//, float frametime)
 		if (pInst->mpComponent_AI->mInnerState == INNER_STATE_ON_EXIT)
 		{
 			pInst->mpComponent_AI->mCounter -= frametime;
-
+			GameObjectInstance* temp;
+			temp = GameObjectInstanceCreate(PARTICLE_TYPE_ENEMY_BURN);
+			temp->mpComponent_Transform->mPosition.x = pInst->mpComponent_Transform->mPosition.x + (-1 + rand() % 3) / 2.f;
+			temp->mpComponent_Transform->mPosition.y = pInst->mpComponent_Transform->mPosition.y + 0.25f;
 			if (pInst->mpComponent_AI->mCounter <= 0)
 			{
 				pInst->mpComponent_AI->mState = STATE_GOING_LEFT;
